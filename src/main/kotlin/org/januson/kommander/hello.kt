@@ -4,13 +4,20 @@ fun main(args: Array<String>) {
     println("Hello")
 
     app(name = "MyApp") {
-        arg("config")
+        about {
+            version = "1.0"
+            author = "Kevin K. <kbknapp@gmail.com>"
+            description = "Does awesome things"
+        }
+        arg(name = "config")
     }.matches(args)
 
-//    app(name = "MyApp",
-//        version = "1.0",
-//        author = "Kevin K. <kbknapp@gmail.com>",
-//        about = "Does awesome things" ) {
+//    app(name = "MyApp") {
+//        about {
+//            version = "1.0"
+//            author = "Kevin K. <kbknapp@gmail.com>"
+//            description = "Does awesome things"
+//        }
 //        args {
 //            arg("config") {
 //                short = "c"

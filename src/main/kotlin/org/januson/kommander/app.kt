@@ -1,8 +1,8 @@
 package org.januson.kommander
 
-class App(val name: String, val arguments: List<String>) {
+class App(val name: String, val about: About, val arguments: List<String>) {
 
-    private constructor(builder: Builder) : this(builder.name, builder.arguments)
+    private constructor(builder: Builder) : this(builder.name, builder.about, builder.arguments)
 
     fun matches(arguments: Array<String>) {
 
@@ -15,9 +15,14 @@ class App(val name: String, val arguments: List<String>) {
         }
 
         lateinit var name: String
-        var arguments = mutableListOf<String>()
+        lateinit var about: About
+        val arguments = mutableListOf<String>()
 
-        fun name(init: Builder.() -> String) = apply { name = init() }
+        fun about(init: About.Builder.() -> Unit) {
+            val builder = About.Builder()
+            builder.init()
+            about = builder.build()
+        }
 
         fun arg(name: String) = apply { arguments.add(name) }
 
@@ -25,8 +30,31 @@ class App(val name: String, val arguments: List<String>) {
     }
 }
 
+class About(val varsion: String, val author: String, val description: String) {
+
+    private constructor(builder: Builder) : this(builder.version, builder.author, builder.description)
+
+    fun matches(arguments: Array<String>) {
+
+    }
+
+    class Builder constructor() {
+
+        constructor(init: Builder.() -> Unit) : this() {
+            init()
+        }
+
+        lateinit var version: String
+        lateinit var author: String
+        lateinit var description: String
+
+        fun build() = About(this)
+    }
+}
+
 fun app(name: String, init: App.Builder.() -> Unit): App {
     val builder = App.Builder()
     builder.init()
+    builder.name =name
     return builder.build()
 }
