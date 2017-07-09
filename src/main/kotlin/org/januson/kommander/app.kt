@@ -44,8 +44,21 @@ class App(val name: String) {
 //}
 
 class ArgBuilder {
-    fun simpleArg(name: String) : Arg {
+    fun arg(name: String, init: Arg.() -> Unit) : Arg {
         val arg = Arg(name)
+        arg.init()
+        return arg
+    }
+
+    fun positional(name: String, init: Arg.() -> Unit) : Arg {
+        val arg = Arg(name)
+        arg.init()
+        return arg
+    }
+
+    fun optional(name: String, init: Arg.() -> Unit) : Arg {
+        val arg = Arg(name)
+        arg.init()
         return arg
     }
 }

@@ -10,11 +10,22 @@ fun main(args: Array<String>) {
             description = "Does awesome things"
         }
         args {
-            simpleArg(name = "config")
-//            positionalArg("output") {
+            optional(name = "config") {
+                short = "c"
+                long = "config"
+//                value_name = "FILE"
+//                takes_value = true
+                help = "Sets a custom config file"
+            }
+            positional("output") {
+                help = "Sets an optional output file"
 //                index = 1
-//                help = "Sets an optional output file"
-//            }
+            }
+            optional("debug") {
+                short = "d"
+//                multiple = true
+                help = "Turn debugging information on"
+            }
         }
     }.matches(args)
 

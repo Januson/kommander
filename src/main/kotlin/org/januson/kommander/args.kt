@@ -2,6 +2,10 @@ package org.januson.kommander
 
 class Arg(val name: String) {
 
+    var short = ""
+    var long = ""
+    var help = ""
+
     private constructor(builder: Builder) : this(builder.name)
 
     class Builder constructor() {
