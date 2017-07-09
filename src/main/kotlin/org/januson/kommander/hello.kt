@@ -9,7 +9,13 @@ fun main(args: Array<String>) {
             author = "Kevin K. <kbknapp@gmail.com>"
             description = "Does awesome things"
         }
-        arg(name = "config")
+        args {
+            simpleArg(name = "config")
+//            positionalArg("output") {
+//                index = 1
+//                help = "Sets an optional output file"
+//            }
+        }
     }.matches(args)
 
 //    app(name = "MyApp") {
