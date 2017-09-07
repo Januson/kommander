@@ -8,6 +8,7 @@ task wrapper(type: Wrapper) {
 
 buildscript {
     ext.kotlin_version = '1.1.4'
+    ext.kotlintest_version = '2.0.5'
 
     repositories {
         mavenCentral()
@@ -28,5 +29,5 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "io.kotlintest:kotlintest:$kotlintest_version"
 }
