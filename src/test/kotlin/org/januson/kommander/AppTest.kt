@@ -1,46 +1,27 @@
 package org.januson.kommander
 
 import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.BehaviorSpec
 import io.kotlintest.specs.FeatureSpec
-import io.kotlintest.specs.FreeSpec
 
 class AppTest : FeatureSpec() {
     init {
         feature("The argument matching") {
-            scenario("should explode when I touch it") {
-                // test here
-            }
-            scenario("and should do this when I wibble it") {
-                // test heree
-            }
-        }
-    }
-}
 
-class MyTests : BehaviorSpec() {
-    init {
-        given("a broomstick") {
-            `when`("I sit on it") {
-                then("I should be able to fly") {
-                    // test code
-                }
-            }
-            `when`("I throw it away") {
-                then("it should come back") {
-                    // test code
-                }
-            }
-        }
-    }
-}
+            scenario("Argument passed to the program should be present in matches") {
+                val args = arrayOf("help")
+                val matches = app {
+                    args {
+                        arg(name = "help") {}
+                    }
+                }.matches(args)
 
-class MyTestss : FreeSpec() {
-    init {
-        "String.length" - {
-            "should return the length of the string" {
-                "sammy".length shouldBe 5
-                "".length shouldBe 0
+                matches.isPresent("help") shouldBe true
+            }
+
+            scenario("Argument that is not passed to the program should not be present in matches") {
+                val args = arrayOf<String>()
+                val matches = App().matches(args)
+                matches.isPresent("help") shouldBe false
             }
         }
     }
