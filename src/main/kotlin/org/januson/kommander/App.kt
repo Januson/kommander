@@ -1,51 +1,46 @@
 package org.januson.kommander
 
-class App {
-
-    fun args(init: ArgBuilder.() -> Unit) {
-        val builder = ArgBuilder()
-        builder.init()
-//        builder.arg
-    }
+class App(private val args: List<Arg>) {
 
     fun matches(args: Array<String>): Matches {
-        val matches = Matches()
+
+        val matches = Matches(this)
         args.map { Arg(it) }
                 .forEach { matches.addMatch(it) }
         return matches
     }
 }
 
-fun app(init: App.() -> Unit): App {
-    val app = App()
-    app.init()
-    return app
+class AppBuilder {
+
+    private lateinit var args: List<Arg>
+
+    fun args(init: ArgsBuilder.() -> Unit) {
+        val builder = ArgsBuilder()
+        builder.init()
+        args = builder.build()
+    }
+
+    fun build() = App(args)
+
 }
 
-class ArgBuilder {
-    fun arg(name: String, init: Arg.() -> Unit): Arg {
-        val arg = Arg(name)
+class ArgsBuilder {
+
+    private val args = mutableListOf<Arg>()
+
+    fun arg(name: String, init: ArgBuilder.() -> Unit) {
+        val arg = ArgBuilder(name)
         arg.init()
-        return arg
-    }
-}
-
-class Arg(val name: String) {}
-
-class Matches {
-
-    private val args = hashMapOf<String, Arg>()
-
-    fun addMatch(arg: Arg) {
-        args.put(arg.name, arg)
+        args.add(arg.build())
     }
 
-    fun isPresent(arg: String): Boolean {
-        return args.containsKey(arg)
-    }
+    fun build() = args.toList()
 
 }
 
-fun main(args: Array<String>) {
-    args.forEach { println(it) }
+fun app(init: AppBuilder.() -> Unit): App {
+    val app = AppBuilder()
+    app.init()
+    return app.build()
 }
