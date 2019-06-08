@@ -7,6 +7,7 @@ plugins {
 
 group = "org.kommander"
 version = "1.0-SNAPSHOT"
+val moduleName by extra("org.kommander")
 
 repositories {
     mavenCentral()
