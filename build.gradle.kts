@@ -15,9 +15,14 @@ repositories {
 
 val junitVersion = "5.3.2"
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
     testImplementation("org.assertj:assertj-core:3.11.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
