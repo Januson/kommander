@@ -7,42 +7,54 @@ data class App(
     var version: String? = null,
     var author: String? = null,
     var about: String? = null,
-    var args: Args? = null
+    var args: Args = Args()
 ) {
     fun matches(args: Collection<String>): Matches {
-        val matchedFlags = mutableMapOf<String, MutableList<String>>()
+        val matchedOption = mutableMapOf<String, MutableList<String>>()
+        val matchedPositional = mutableMapOf<String, String>()
         for (arg in args) {
             if (arg.startsWith("-")) {
-                this.args?.contains(arg.substring(1))?.let {
-                    matchedFlags.putIfAbsent(it.name, mutableListOf())
-                    matchedFlags[it.name]?.add(it.name)
+                this.args.contains(arg.substring(1))?.let {
+                    matchedOption.putIfAbsent(it.name, mutableListOf())
+                    matchedOption[it.name]?.add(it.name)
                 }
+            } else {
+                val argDescriptor = this.args.positionals[matchedPositional.size]
+                matchedPositional[argDescriptor.name] = arg
             }
         }
-        for (flag in matchedFlags) {
+        for (flag in matchedOption) {
             val descriptor = descriptorOf(flag.key)
             if (flag.value.size > 1 && descriptor?.repeatable?.not() == true) {
                 throw NonRepeatableArgException(flag.key)
             }
         }
-        return Matches(matchedFlags)
+        return Matches(matchedOption, matchedPositional.toMap())
     }
 
-    fun descriptorOf(name: String) : FlagArg?  {
-        return args?.options?.find { it.name == name }
+    fun descriptorOf(name: String): OptionArg? {
+        return args.options.find { it.name == name }
     }
 }
 
 data class Args(
-    var args: MutableList<Arg> = mutableListOf(),
-    var options: MutableList<FlagArg> = mutableListOf()
+    var positionals: MutableList<PositionalArg> = mutableListOf(),
+    var options: MutableList<OptionArg> = mutableListOf()
 ) {
 
-    fun add(flag: FlagArg) {
-        options.add(flag)
+    fun add(arg: OptionArg) {
+        options.add(arg)
+    }
+
+    fun add(arg: PositionalArg) {
+        positionals.add(arg)
     }
 
     fun contains(short: String): Arg? {
+        return options.find { arg -> arg.match(short) }
+    }
+
+    fun by(short: String): Arg? {
         return options.find { arg -> arg.match(short) }
     }
 
@@ -53,7 +65,7 @@ interface Arg {
     fun match(f: String): Boolean
 }
 
-data class FlagArg(
+data class OptionArg(
     override val name: String,
     var short: String? = null,
     var long: String? = null,
@@ -76,13 +88,20 @@ data class PositionalArg(
     }
 }
 
-class Matches(private val matchedFlags: MutableMap<String, MutableList<String>>) {
+class Matches(
+    private val optionArgs: MutableMap<String, MutableList<String>>,
+    private val positionalArgs: Map<String, String>
+) {
     fun isPresent(name: String): Boolean {
-        return matchedFlags.containsKey(name)
+        return optionArgs.containsKey(name)
     }
 
     fun occurrencesOf(name: String): Int {
-        return matchedFlags[name]?.size ?: 0
+        return optionArgs[name]?.size ?: 0
+    }
+
+    fun valueOf(name: String): String? {
+        return positionalArgs[name]
     }
 }
 
@@ -96,13 +115,13 @@ fun App.args(block: Args.() -> Unit) {
     args = Args().apply(block)
 }
 
-fun Args.option(name: String, block: FlagArg.() -> Unit) {
-    add(FlagArg(name).apply(block))
+fun Args.option(name: String, block: OptionArg.() -> Unit) {
+    add(OptionArg(name).apply(block))
 }
 
-fun MutableList<Arg>.positional(name: String, block: PositionalArg.() -> Unit) {
+fun Args.positional(name: String, block: PositionalArg.() -> Unit) {
     add(PositionalArg(name).apply(block))
 }
 
-class NonRepeatableArgException(arg: String)
-    : Exception("ERROR: The argument '$arg' was provided more than once, but cannot be used multiple times!")
+class NonRepeatableArgException(arg: String) :
+    Exception("ERROR: The argument '$arg' was provided more than once, but cannot be used multiple times!")

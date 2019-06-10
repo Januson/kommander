@@ -4,15 +4,12 @@ package org.kommander.args
 import io.kotlintest.shouldThrowExactly
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.kommander.NonRepeatableArgException
-import org.kommander.app
-import org.kommander.args
-import org.kommander.option
+import org.kommander.*
 
-class FlagTest {
+class OptionMatchingTest {
 
     @Test
-    fun singleFlag() {
+    fun singleOption() {
         val args = listOf("-v")
         val matches = app("My awesome app!") {
             args {
@@ -26,7 +23,7 @@ class FlagTest {
     }
 
     @Test
-    fun repeatableFlag() {
+    fun repeatableOption() {
         val args = listOf("-v", "-v", "-v")
         val matches = app("My awesome app!") {
             args {
@@ -41,7 +38,7 @@ class FlagTest {
     }
 
     @Test
-    fun repeatedNonRepeatableFlag() {
+    fun repeatedNonRepeatableOption() {
         val args = listOf("-v", "-v")
         val app = app("My awesome app!") {
             args {
@@ -55,7 +52,7 @@ class FlagTest {
     }
 
     @Test
-    fun missingFlag() {
+    fun missingOption() {
         val args = listOf("-v")
         val matches = app("My awesome app!") {
         }.matches(args)
