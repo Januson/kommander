@@ -42,4 +42,23 @@ class PositionalMatchingTest {
         assertEquals(to, matches.valueOf("to"))
     }
 
+    @Test
+    fun twoPositionalj() {
+        val from = "/tmp"
+        val to = "/etc/target"
+        val matches = app("mv") {
+            args {
+                positional(name = "to") {
+                    index = 2
+                }
+                positional(name = "from") {
+                    index = 1
+                }
+            }
+        }.matches(listOf(from, to))
+
+        assertEquals(from, matches.valueOf("from"))
+        assertEquals(to, matches.valueOf("to"))
+    }
+
 }

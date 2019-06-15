@@ -7,7 +7,7 @@ data class App(
     var version: String? = null,
     var author: String? = null,
     var about: String? = null,
-    var args: Args = Args()
+    var args: Args = Args(emptyList(), emptyList())
 ) {
     fun matches(args: Collection<String>): Matches {
         val matchedOption = mutableMapOf<String, MutableList<String>>()
@@ -37,7 +37,7 @@ data class App(
     }
 }
 
-data class Args(
+data class ArgsBuilder(
     var positionals: MutableList<PositionalArg> = mutableListOf(),
     var options: MutableList<OptionArg> = mutableListOf()
 ) {
@@ -49,6 +49,15 @@ data class Args(
     fun add(arg: PositionalArg) {
         positionals.add(arg)
     }
+
+}
+
+class Args(
+    val options: List<OptionArg>,
+    positionals: List<PositionalArg>
+) {
+
+    val positionals: List<PositionalArg> = positionals.sortedBy { it.index }
 
     fun contains(short: String): Arg? {
         return options.find { arg -> arg.match(short) }
@@ -79,10 +88,18 @@ data class OptionArg(
 
 data class PositionalArg(
     override val name: String,
-    var index: Int? = null,
-    var required: Boolean? = null,
+    var index: Int
+) : Arg, Comparable<PositionalArg> {
+
+    var required: Boolean? = null
     var help: String? = null
-) : Arg {
+
+    override fun compareTo(other: PositionalArg): Int {
+        return Comparator
+            .comparingInt<PositionalArg> { it.index }
+            .compare(this, other)
+    }
+
     override fun match(f: String): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -111,16 +128,20 @@ fun app(name: String, block: App.() -> Unit): App {
     return p
 }
 
-fun App.args(block: Args.() -> Unit) {
-    args = Args().apply(block)
+fun App.args(block: ArgsBuilder.() -> Unit) {
+    val builder = ArgsBuilder().apply(block)
+    args = Args(
+        builder.options.toList(),
+        builder.positionals.toList()
+    )
 }
 
-fun Args.option(name: String, block: OptionArg.() -> Unit) {
+fun ArgsBuilder.option(name: String, block: OptionArg.() -> Unit) {
     add(OptionArg(name).apply(block))
 }
 
-fun Args.positional(name: String, block: PositionalArg.() -> Unit) {
-    add(PositionalArg(name).apply(block))
+fun ArgsBuilder.positional(name: String, block: PositionalArg.() -> Unit) {
+    add(PositionalArg(name, positionals.size + 1).apply(block))
 }
 
 class NonRepeatableArgException(arg: String) :
