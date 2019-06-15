@@ -9,12 +9,20 @@ data class App(
     var about: String? = null,
     var args: Args = Args(emptyList(), emptyList())
 ) {
-    fun matches(args: Collection<String>): Matches {
+    fun matches(args: List<String>): Matches {
         val matchedOption = mutableMapOf<String, MutableList<String>>()
         val matchedPositional = mutableMapOf<String, String>()
         for (arg in args) {
-            if (arg.startsWith("-")) {
-                this.args.contains(arg.substring(1))?.let {
+            if (arg == "--") {
+                args.subList(args.indexOf("--") + 1, args.size)
+                    .forEach {
+                        val argDescriptor = this.args.positionals[matchedPositional.size]
+                        matchedPositional[argDescriptor.name] = it
+                    }
+                return Matches(matchedOption, matchedPositional.toMap())
+            }
+            if (arg.startsWith("-") || arg.startsWith("--")) {
+                this.args.contains(arg.trimStart('-'))?.let {
                     matchedOption.putIfAbsent(it.name, mutableListOf())
                     matchedOption[it.name]?.add(it.name)
                 }
@@ -110,7 +118,8 @@ class Matches(
     private val positionalArgs: Map<String, String>
 ) {
     fun isPresent(name: String): Boolean {
-        return optionArgs.containsKey(name)
+        return optionArgs.containsKey(name) ||
+                positionalArgs.containsKey(name)
     }
 
     fun occurrencesOf(name: String): Int {

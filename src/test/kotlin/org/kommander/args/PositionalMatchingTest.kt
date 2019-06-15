@@ -10,7 +10,7 @@ import org.kommander.positional
 class PositionalMatchingTest {
 
     @Test
-    fun singlePositional() {
+    fun singleArg() {
         val from = "/tmp"
         val matches = app("mv") {
             args {
@@ -24,7 +24,7 @@ class PositionalMatchingTest {
     }
 
     @Test
-    fun twoPositional() {
+    fun twoArgs() {
         val from = "/tmp"
         val to = "/etc/target"
         val matches = app("mv") {
@@ -43,7 +43,22 @@ class PositionalMatchingTest {
     }
 
     @Test
-    fun twoPositionalj() {
+    fun indexIsOptional() {
+        val from = "/tmp"
+        val to = "/etc/target"
+        val matches = app("mv") {
+            args {
+                positional(name = "from") {}
+                positional(name = "to") {}
+            }
+        }.matches(listOf(from, to))
+
+        assertEquals(from, matches.valueOf("from"))
+        assertEquals(to, matches.valueOf("to"))
+    }
+
+    @Test
+    fun indexTakesPrecedence() {
         val from = "/tmp"
         val to = "/etc/target"
         val matches = app("mv") {
