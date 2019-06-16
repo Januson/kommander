@@ -9,12 +9,26 @@ import org.kommander.*
 class OptionMatchingTest {
 
     @Test
-    fun singleOption() {
+    fun singleShortFlag() {
         val args = listOf("-v")
         val matches = app("My awesome app!") {
             args {
                 option(name = "verbose") {
                     short = "v"
+                }
+            }
+        }.matches(args)
+
+        assertTrue(matches.isPresent("verbose"))
+    }
+
+    @Test
+    fun singleLongFlag() {
+        val args = listOf("--verbose")
+        val matches = app("My awesome app!") {
+            args {
+                option(name = "verbose") {
+                    long = "verbose"
                 }
             }
         }.matches(args)

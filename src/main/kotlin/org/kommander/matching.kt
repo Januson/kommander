@@ -90,7 +90,7 @@ data class OptionArg(
     var help: String? = null
 ) : Arg {
     override fun match(f: String): Boolean {
-        return short == f
+        return short == f || long == f
     }
 }
 

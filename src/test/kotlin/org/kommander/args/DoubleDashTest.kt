@@ -11,7 +11,7 @@ import org.kommander.positional
 class DoubleDashTest {
 
     @Test
-    fun marksFollowingArgsAsPositional() {
+    fun matchesFollowingArgsAsPositional() {
         val args = listOf("-f", "--", "-r", "-d")
         val matches = app("test") {
             args {
