@@ -1,11 +1,10 @@
 package org.kommander.args
 
 
+import io.kotlintest.shouldThrowExactly
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.kommander.app
-import org.kommander.args
-import org.kommander.positional
+import org.kommander.*
 
 class PositionalMatchingTest {
 
@@ -74,6 +73,21 @@ class PositionalMatchingTest {
 
         assertEquals(from, matches.valueOf("from"))
         assertEquals(to, matches.valueOf("to"))
+    }
+
+    @Test
+    fun tooManyArgsSupplied() {
+        val from = "/tmp"
+        val to = "/etc/target"
+        val app = app("mv") {
+            args {
+                positional(name = "from") {
+                    index = 1
+                }
+            }
+        }
+
+        shouldThrowExactly<UnexpectedArgException> { app.matches(listOf(from, to)) }
     }
 
 }

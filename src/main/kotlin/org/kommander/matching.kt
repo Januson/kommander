@@ -25,8 +25,15 @@ data class App(
                 this.args.contains(arg.trimStart('-'))?.let {
                     matchedOption.putIfAbsent(it.name, mutableListOf())
                     matchedOption[it.name]?.add(it.name)
+                } ?: run {
+                    if (this.args.positionals.size == matchedPositional.size) {
+                        throw UnexpectedArgException(arg)
+                    }
                 }
             } else {
+                if (this.args.positionals.size == matchedPositional.size) {
+                    throw UnexpectedArgException(arg)
+                }
                 val argDescriptor = this.args.positionals[matchedPositional.size]
                 matchedPositional[argDescriptor.name] = arg
             }
@@ -155,3 +162,6 @@ fun ArgsBuilder.positional(name: String, block: PositionalArg.() -> Unit) {
 
 class NonRepeatableArgException(arg: String) :
     Exception("ERROR: The argument '$arg' was provided more than once, but cannot be used multiple times!")
+
+class UnexpectedArgException(arg: String) :
+    Exception("ERROR: Found argument '$arg' which wasn't expected, or isn't valid in this context!")

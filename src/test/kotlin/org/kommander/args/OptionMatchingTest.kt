@@ -98,11 +98,19 @@ class OptionMatchingTest {
 
     @Test
     fun missingOption() {
-        val args = listOf("-v")
+        val args = listOf<String>()
         val matches = app("My awesome app!") {
         }.matches(args)
 
         assertFalse(matches.isPresent("verbose"))
+    }
+
+    @Test
+    fun tooManyArgsSupplied() {
+        val args = listOf("-f")
+        val app = app("mv") {}
+
+        shouldThrowExactly<UnexpectedArgException> { app.matches(args) }
     }
 
 }
