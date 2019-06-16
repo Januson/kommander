@@ -37,6 +37,22 @@ class OptionMatchingTest {
     }
 
     @Test
+    fun longAndShortShouldCountAsRepeated() {
+        val args = listOf("--verbose", "-v")
+        val matches = app("My awesome app!") {
+            args {
+                option(name = "verbose") {
+                    short = "v"
+                    long = "verbose"
+                    repeatable = true
+                }
+            }
+        }.matches(args)
+
+        assertEquals(2, matches.occurrencesOf("verbose"))
+    }
+
+    @Test
     fun repeatableOption() {
         val args = listOf("-v", "-v", "-v")
         val matches = app("My awesome app!") {
@@ -58,6 +74,21 @@ class OptionMatchingTest {
             args {
                 option(name = "verbose") {
                     short = "v"
+                }
+            }
+        }
+
+        shouldThrowExactly<NonRepeatableArgException> { app.matches(args) }
+    }
+
+    @Test
+    fun repeatedShortAndLong() {
+        val args = listOf("--verbose", "-v")
+        val app = app("My awesome app!") {
+            args {
+                option(name = "verbose") {
+                    short = "v"
+                    long = "verbose"
                 }
             }
         }
