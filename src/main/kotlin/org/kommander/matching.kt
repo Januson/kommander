@@ -1,14 +1,20 @@
 package org.kommander
 
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.OutputStream
 import java.lang.Exception
 
 data class App(
-    var name: String? = null,
+    val name: String,
     var version: String? = null,
     var author: String? = null,
     var about: String? = null,
+    var config: AppConfig = AppConfig(output = System.out),
     var args: Args = Args(emptyList(), emptyList())
 ) {
+    var output: Appendable? = null
+
     fun matches(args: List<String>): Matches {
         val matchedOption = mutableMapOf<String, MutableList<String>>()
         val matchedPositional = mutableMapOf<String, String>()
@@ -50,7 +56,28 @@ data class App(
     fun descriptorOf(name: String): OptionArg? {
         return args.options.find { it.name == name }
     }
+
+    fun config(block: AppConfig.() -> Unit) {
+        this.config.apply(block)
+    }
+
+    fun printHelp() {
+        VersionHelp(this.name, this.version ?: "")
+            .printTo(this.config.output)
+    }
+
 }
+
+data class VersionHelp(private val name: String, private val version: String = "") {
+    fun printTo(media: OutputStream) {
+        media.write(
+            "${this.name} ${this.version}".trim()
+                .toByteArray(Charsets.UTF_8)
+        )
+    }
+}
+
+data class AppConfig(var output: OutputStream)
 
 data class ArgsBuilder(
     var positionals: MutableList<PositionalArg> = mutableListOf(),
