@@ -10,11 +10,11 @@ class OptionMatchingTest {
 
     @Test
     fun singleShortFlag() {
-        val args = listOf("-v")
+        val args = listOf("-V")
         val matches = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "v"
+                    short = "V"
                 }
             }
         }.matches(args)
@@ -38,11 +38,11 @@ class OptionMatchingTest {
 
     @Test
     fun longAndShortShouldCountAsRepeated() {
-        val args = listOf("--verbose", "-v")
+        val args = listOf("--verbose", "-V")
         val matches = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "v"
+                    short = "V"
                     long = "verbose"
                     repeatable = true
                 }
@@ -54,11 +54,11 @@ class OptionMatchingTest {
 
     @Test
     fun repeatableOption() {
-        val args = listOf("-v", "-v", "-v")
+        val args = listOf("-V", "-V", "-V")
         val matches = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "v"
+                    short = "V"
                     repeatable = true
                 }
             }
@@ -69,11 +69,11 @@ class OptionMatchingTest {
 
     @Test
     fun repeatedNonRepeatableOption() {
-        val args = listOf("-v", "-v")
+        val args = listOf("-V", "-V")
         val app = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "v"
+                    short = "V"
                 }
             }
         }
@@ -83,11 +83,11 @@ class OptionMatchingTest {
 
     @Test
     fun repeatedShortAndLong() {
-        val args = listOf("--verbose", "-v")
+        val args = listOf("--verbose", "-V")
         val app = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "v"
+                    short = "V"
                     long = "verbose"
                 }
             }

@@ -16,6 +16,10 @@ data class App(
     var output: Appendable? = null
 
     fun matches(args: List<String>): Matches {
+        if (args.contains("-v") || args.contains("--version")) {
+            printHelp()
+            return Matches(mutableMapOf(), mapOf())
+        }
         val matchedOption = mutableMapOf<String, MutableList<String>>()
         val matchedPositional = mutableMapOf<String, String>()
         for (arg in args) {

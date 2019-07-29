@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test
 import org.kommander.app
 import java.io.ByteArrayOutputStream
 
-class VersionTest {
+class PrintVersionTest {
 
     @Test
-    fun matchesFollowingArgsAsPositional() {
+    fun appNameOnly() {
         val out = ByteArrayOutputStream()
         app("My Test App") {
             config {
@@ -21,7 +21,7 @@ class VersionTest {
     }
 
     @Test
-    fun matchesFollowingArgsAsPositional2() {
+    fun appNameAndVersion() {
         val out = ByteArrayOutputStream()
         app("My Test App") {
             version = "1.0.0"
@@ -31,6 +31,30 @@ class VersionTest {
         }.printHelp()
 
         assertEquals("My Test App 1.0.0", out.toString())
+    }
+
+    @Test
+    fun versionFlagShort() {
+        val out = ByteArrayOutputStream()
+        app("My Test App") {
+            config {
+                output = out
+            }
+        }.matches(listOf("-v"))
+
+        assertEquals("My Test App", out.toString())
+    }
+
+    @Test
+    fun versionFlagLong() {
+        val out = ByteArrayOutputStream()
+        app("My Test App") {
+            config {
+                output = out
+            }
+        }.matches(listOf("--version"))
+
+        assertEquals("My Test App", out.toString())
     }
 
 }
