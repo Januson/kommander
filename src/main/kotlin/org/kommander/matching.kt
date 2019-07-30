@@ -1,7 +1,5 @@
 package org.kommander
 
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.io.OutputStream
 import java.lang.Exception
 
@@ -17,6 +15,10 @@ data class App(
 
     fun matches(args: List<String>): Matches {
         if (args.contains("-v") || args.contains("--version")) {
+            printHelp()
+            return Matches(mutableMapOf(), mapOf())
+        }
+        if (args.contains("-h") || args.contains("--help")) {
             printHelp()
             return Matches(mutableMapOf(), mapOf())
         }
