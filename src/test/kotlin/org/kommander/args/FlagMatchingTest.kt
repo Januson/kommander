@@ -6,29 +6,15 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.kommander.*
 
-class OptionMatchingTest {
-
-//    @Test
-//    fun optionShouldHaveAValue() {
-//        val args = listOf("-V")
-//        val app = app("My awesome app!") {
-//            args {
-//                option(name = "verbose") {
-//                    short = "V"
-//                }
-//            }
-//        }
-//
-//        shouldThrowExactly<NonRepeatableArgException> { app.matches(args) }
-//    }
+class FlagMatchingTest {
 
     @Test
-    fun singleShortOption() {
-        val args = listOf("-f", "/etc")
+    fun singleShortFlag() {
+        val args = listOf("-V")
         val matches = app("My awesome app!") {
             args {
                 option(name = "verbose") {
-                    short = "f"
+                    short = "V"
                 }
             }
         }.matches(args)
@@ -37,7 +23,7 @@ class OptionMatchingTest {
     }
 
     @Test
-    fun singleLongOption() {
+    fun singleLongFlag() {
         val args = listOf("--verbose")
         val matches = app("My awesome app!") {
             args {
@@ -82,12 +68,13 @@ class OptionMatchingTest {
     }
 
     @Test
-    fun repeatedNonRepeatableOption() {
+    fun repeatedNonRepeatableFlagShort() {
         val args = listOf("-V", "-V")
         val app = app("My awesome app!") {
             args {
                 option(name = "verbose") {
                     short = "V"
+                    repeatable = false
                 }
             }
         }
@@ -96,13 +83,29 @@ class OptionMatchingTest {
     }
 
     @Test
-    fun repeatedShortAndLong() {
+    fun repeatedNonRepeatableFlagLong() {
+        val args = listOf("--verbose", "--verbose")
+        val app = app("My awesome app!") {
+            args {
+                option(name = "verbose") {
+                    long = "verbose"
+                    repeatable = false
+                }
+            }
+        }
+
+        shouldThrowExactly<NonRepeatableArgException> { app.matches(args) }
+    }
+
+    @Test
+    fun repeatedNonRepeatableFlagShortAndLong() {
         val args = listOf("--verbose", "-V")
         val app = app("My awesome app!") {
             args {
                 option(name = "verbose") {
                     short = "V"
                     long = "verbose"
+                    repeatable = false
                 }
             }
         }
@@ -111,7 +114,7 @@ class OptionMatchingTest {
     }
 
     @Test
-    fun missingOption() {
+    fun unknownFlagIsNotPresent() {
         val args = listOf<String>()
         val matches = app("My awesome app!") {
         }.matches(args)
@@ -120,9 +123,9 @@ class OptionMatchingTest {
     }
 
     @Test
-    fun tooManyArgsSupplied() {
+    fun unexpectedFlagSupplied() {
         val args = listOf("-f")
-        val app = app("mv") {}
+        val app = app("My awesome app!") {}
 
         shouldThrowExactly<UnexpectedArgException> { app.matches(args) }
     }
