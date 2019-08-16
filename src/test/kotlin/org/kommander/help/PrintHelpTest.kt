@@ -3,7 +3,7 @@ package org.kommander.help
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.kommander.app
+import org.kommander.ui.app
 import java.io.ByteArrayOutputStream
 
 class PrintHelpTest {

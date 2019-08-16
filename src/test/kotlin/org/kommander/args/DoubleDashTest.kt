@@ -1,12 +1,13 @@
 package org.kommander.args
 
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.kommander.app
-import org.kommander.args
-import org.kommander.option
-import org.kommander.positional
+import org.kommander.ui.app
+import org.kommander.ui.args
+import org.kommander.ui.option
+import org.kommander.ui.positional
 
 class DoubleDashTest {
 

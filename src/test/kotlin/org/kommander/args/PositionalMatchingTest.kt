@@ -4,7 +4,10 @@ package org.kommander.args
 import io.kotlintest.shouldThrowExactly
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.kommander.*
+import org.kommander.UnexpectedArgException
+import org.kommander.ui.app
+import org.kommander.ui.args
+import org.kommander.ui.positional
 
 class PositionalMatchingTest {
 
