@@ -97,16 +97,16 @@ fun AppBuilder.args(block: ArgsBuilder.() -> Unit) {
 //    )
 }
 
-fun ArgsBuilder.flag(name: String, block: OptionArg.() -> Unit) {
-    add(OptionArg(name).apply(block))
+fun ArgsBuilder.flag(name: String, block: FlagArg.() -> Unit) {
+    add(FlagArg(name).apply(block))
 }
 
 fun ArgsBuilder.option(name: String, block: OptionArg.() -> Unit) {
     add(OptionArg(name).apply(block))
 }
 
-fun AppBuilder.flag(name: String, block: OptionArg.() -> Unit) {
-    add(OptionArg(name).apply(block))
+fun AppBuilder.flag(name: String, block: FlagArg.() -> Unit) {
+    add(FlagArg(name).apply(block))
 }
 
 fun AppBuilder.option(name: String, block: OptionArg.() -> Unit) {

@@ -10,7 +10,7 @@ import org.kommander.NonRepeatableArgException
 import org.kommander.UnexpectedArgException
 import org.kommander.ui.app
 import org.kommander.ui.args
-import org.kommander.ui.option
+import org.kommander.ui.flag
 
 class FlagMatchingTest {
 
@@ -19,7 +19,7 @@ class FlagMatchingTest {
         val args = listOf("-V")
         val matches = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     short = "V"
                 }
             }
@@ -33,7 +33,7 @@ class FlagMatchingTest {
         val args = listOf("--verbose")
         val matches = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     long = "verbose"
                 }
             }
@@ -47,7 +47,7 @@ class FlagMatchingTest {
         val args = listOf("--verbose", "-V")
         val matches = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     short = "V"
                     long = "verbose"
                     repeatable = true
@@ -59,11 +59,11 @@ class FlagMatchingTest {
     }
 
     @Test
-    fun repeatableOption() {
+    fun repeatableFlag() {
         val args = listOf("-V", "-V", "-V")
         val matches = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     short = "V"
                     repeatable = true
                 }
@@ -78,7 +78,7 @@ class FlagMatchingTest {
         val args = listOf("-V", "-V")
         val app = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     short = "V"
                     repeatable = false
                 }
@@ -93,7 +93,7 @@ class FlagMatchingTest {
         val args = listOf("--verbose", "--verbose")
         val app = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     long = "verbose"
                     repeatable = false
                 }
@@ -108,7 +108,7 @@ class FlagMatchingTest {
         val args = listOf("--verbose", "-V")
         val app = app("My awesome app!") {
             args {
-                option(name = "verbose") {
+                flag(name = "verbose") {
                     short = "V"
                     long = "verbose"
                     repeatable = false
