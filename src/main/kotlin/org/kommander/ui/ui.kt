@@ -1,8 +1,6 @@
 package org.kommander.ui
 
 import org.kommander.AppConfig
-import org.kommander.ExpectedFlag
-import org.kommander.ExpectedPositional
 import org.kommander.FlagArg
 import org.kommander.Matches
 import org.kommander.MatchesOf
@@ -33,10 +31,6 @@ data class AppBuilder(
             this.args.positionals.map { it.toPositional() }.sortedBy { it.index }.toList(),
             args
         ).matches()
-    }
-
-    fun descriptorOf(name: String): OptionArg? {
-        return args.options.find { it.name == name }
     }
 
     fun config(block: AppConfig.() -> Unit) {

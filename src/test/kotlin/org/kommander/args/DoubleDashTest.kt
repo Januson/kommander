@@ -7,22 +7,23 @@ import org.junit.jupiter.api.Test
 import org.kommander.ui.app
 import org.kommander.ui.args
 import org.kommander.ui.option
+import org.kommander.ui.flag
 import org.kommander.ui.positional
 
 class DoubleDashTest {
 
     @Test
     fun matchesFollowingArgsAsPositional() {
-        val args = listOf("-f", "--", "-r", "-d")
+        val args = listOf("-V", "--", "-r", "-d")
         val matches = app("test") {
             args {
-                option("file") {
-                    short = "f"
+                flag("verbose") {
+                    short = "V"
                 }
-                option("from") {
-                    short = "r"
+                option("to") {
+                    short = "t"
                 }
-                option("debug") {
+                flag("debug") {
                     short = "d"
                 }
                 positional(name = "source") {}
@@ -30,8 +31,8 @@ class DoubleDashTest {
             }
         }.matches(args)
 
-        assertTrue(matches.isPresent("file"))
-        assertFalse(matches.isPresent("from"))
+        assertTrue(matches.isPresent("verbose"))
+        assertFalse(matches.isPresent("to"))
         assertFalse(matches.isPresent("debug"))
         assertTrue(matches.isPresent("source"))
         assertTrue(matches.isPresent("target"))

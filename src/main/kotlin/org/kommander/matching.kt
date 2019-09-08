@@ -27,23 +27,32 @@ class MatchesOf(
 ) {
     fun matches(): Matches {
         val matchedFlags = mutableMapOf<String, Int>()
-        val matchedOption = mutableMapOf<String, Int>()
+        val matchedOption = mutableMapOf<String, MutableList<String>>()
         val matchedPositional = mutableMapOf<String, String>()
-        for (arg in args) {
+        val argsIt= args.iterator()
+        while (argsIt.hasNext()) {
+            val arg = argsIt.next()
             if (arg == "--") {
-                args.subList(args.indexOf("--") + 1, args.size)
-                    .forEach {
-                        val argDescriptor = this.expectedPositionals[matchedPositional.size]
-                        matchedPositional[argDescriptor.name] = it
-                    }
+                while (argsIt.hasNext()) {
+                    val it = argsIt.next()
+                    val argDescriptor = this.expectedPositionals[matchedPositional.size]
+                    matchedPositional[argDescriptor.name] = it
+                }
                 return Matches(matchedFlags, matchedOption, matchedPositional.toMap())
             }
             if (arg.startsWith("-") || arg.startsWith("--")) {
-                val expectedFlag = this.expectedFlags
-                    .find { it.matches(arg.trimStart('-'))  }
-                    ?: this.expectedOptions.find { it.matches(arg.trimStart('-'))  }
+                val trimmedArg = arg.trimStart('-')
+                val expectedFlag = this.expectedFlags.find { it.matches(trimmedArg)  }
+                val expectedOption = this.expectedOptions.find { it.matches(arg.trimStart('-'))  }
                 if (expectedFlag != null) {
                     matchedFlags[expectedFlag.name] = matchedFlags[expectedFlag.name]?.plus(1) ?: 1
+                } else if (expectedOption != null) {
+                    if (argsIt.hasNext()) {
+                        matchedOption.putIfAbsent(expectedOption.name, mutableListOf())
+                        matchedOption[expectedOption.name]?.add(argsIt.next())
+                    } else {
+                        throw OptionValueIsMissingException("asd")
+                    }
                 } else {
                     if (this.expectedPositionals.size == matchedPositional.size) {
                         throw UnexpectedArgException(arg)
@@ -65,7 +74,7 @@ class MatchesOf(
         }
         for (flag in matchedOption) {
             val descriptor = descriptorOf(flag.key)
-            if (flag.value > 1 && descriptor?.repeatable?.not() == true) {
+            if (flag.value.size > 1 && descriptor?.repeatable?.not() == true) {
                 throw NonRepeatableArgException(flag.key)
             }
         }
@@ -88,23 +97,6 @@ data class VersionHelp(private val name: String, private val version: String = "
 }
 
 data class AppConfig(var output: OutputStream)
-
-class Args(
-    val options: List<OptionArg>,
-    positionals: List<PositionalArg>
-) {
-
-    val positionals: List<PositionalArg> = positionals.sortedBy { it.index }
-
-    fun contains(short: String): Arg? {
-        return options.find { arg -> arg.match(short) }
-    }
-
-    fun by(short: String): Arg? {
-        return options.find { arg -> arg.match(short) }
-    }
-
-}
 
 interface Arg {
     val name: String
@@ -149,9 +141,6 @@ data class PositionalArg(
     var index: Int
 ) : Arg, Comparable<PositionalArg> {
 
-    var required: Boolean? = null
-    var help: String? = null
-
     override fun toExpected(): ExpectedFlag {
         return ExpectedFlag(name)
     }
@@ -173,22 +162,26 @@ data class PositionalArg(
 
 class Matches(
     private val flagArgs: MutableMap<String, Int>,
-    private val optionArgs: MutableMap<String, Int>,
+    private val optionArgs: MutableMap<String, MutableList<String>>,
     private val positionalArgs: Map<String, String>
 ) {
     fun isPresent(name: String): Boolean {
         return flagArgs.containsKey(name) ||
-        return optionArgs.containsKey(name) ||
+                optionArgs.containsKey(name) ||
                 positionalArgs.containsKey(name)
     }
 
     fun occurrencesOf(name: String): Int {
         return flagArgs[name] ?:
-            optionArgs[name] ?: 0
+            optionArgs[name]?.size ?: 0
     }
 
     fun valueOf(name: String): String? {
-        return positionalArgs[name]
+        return positionalArgs[name] ?: optionArgs[name]?.first()
+    }
+
+    fun valuesOf(name: String): List<String>? {
+        return optionArgs[name]?.toList()
     }
 }
 
@@ -196,4 +189,7 @@ class NonRepeatableArgException(arg: String) :
     Exception("ERROR: The argument '$arg' was provided more than once, but cannot be used multiple times!")
 
 class UnexpectedArgException(arg: String) :
+    Exception("ERROR: Found argument '$arg' which wasn't expected, or isn't valid in this context!")
+
+class OptionValueIsMissingException(arg: String) :
     Exception("ERROR: Found argument '$arg' which wasn't expected, or isn't valid in this context!")
