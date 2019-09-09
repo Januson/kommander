@@ -136,4 +136,43 @@ class FlagMatchingTest {
         shouldThrowExactly<UnexpectedArgException> { app.matches(args) }
     }
 
+    @Test
+    fun twoCombinedFlag() {
+        val args = listOf("-fs")
+        val matches = app("My awesome app!") {
+            args {
+                flag(name = "file") {
+                    short = "f"
+                }
+                flag(name = "state") {
+                    short = "s"
+                }
+            }
+        }.matches(args)
+
+        assertTrue(matches.isPresent("file"))
+        assertTrue(matches.isPresent("state"))
+    }
+
+    @Test
+    fun threeCombinedFlag() {
+        val args = listOf("-rfs")
+        val matches = app("My awesome app!") {
+            args {
+                flag(name = "file") {
+                    short = "f"
+                }
+                flag(name = "state") {
+                    short = "s"
+                }
+                flag(name = "retry") {
+                    short = "r"
+                }
+            }
+        }.matches(args)
+
+        assertTrue(matches.isPresent("file"))
+        assertTrue(matches.isPresent("state"))
+    }
+
 }

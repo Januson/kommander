@@ -9,7 +9,7 @@ class ExpectedFlag(
     val long: String = "",
     val repeatable: Boolean = false
 ) {
-    fun matches(arg:String): Boolean {
+    fun matches(arg: String): Boolean {
         return this.short == arg || this.long == arg
     }
 }
@@ -20,50 +20,66 @@ class ExpectedPositional(
 )
 
 class MatchesOf(
-    val expectedFlags: List<ExpectedFlag>,
-    val expectedOptions: List<ExpectedFlag>,
-    val expectedPositionals: List<ExpectedPositional>,
-    val args: List<String>
+    private val expectedFlags: List<ExpectedFlag>,
+    private val expectedOptions: List<ExpectedFlag>,
+    private val expectedPositionals: List<ExpectedPositional>,
+    private val args: List<String>
 ) {
     fun matches(): Matches {
         val matchedFlags = mutableMapOf<String, Int>()
         val matchedOption = mutableMapOf<String, MutableList<String>>()
         val matchedPositional = mutableMapOf<String, String>()
-        val argsIt= args.iterator()
-        while (argsIt.hasNext()) {
-            val arg = argsIt.next()
-            if (arg == "--") {
-                while (argsIt.hasNext()) {
-                    val it = argsIt.next()
+        val arguments = args.iterator()
+        while (arguments.hasNext()) {
+            val argument = arguments.next()
+            if (argument == "--") {
+                while (arguments.hasNext()) {
+                    val it = arguments.next()
                     val argDescriptor = this.expectedPositionals[matchedPositional.size]
                     matchedPositional[argDescriptor.name] = it
                 }
                 return Matches(matchedFlags, matchedOption, matchedPositional.toMap())
             }
-            if (arg.startsWith("-") || arg.startsWith("--")) {
-                val trimmedArg = arg.trimStart('-')
-                val expectedFlag = this.expectedFlags.find { it.matches(trimmedArg)  }
-                val expectedOption = this.expectedOptions.find { it.matches(arg.trimStart('-'))  }
+            if (argument.startsWith("--")) {
+                val trimmedArg = argument.trimStart('-')
+                val expectedFlag = this.expectedFlags.find { it.matches(trimmedArg) }
+                val expectedOption = this.expectedOptions.find { it.matches(argument.trimStart('-')) }
                 if (expectedFlag != null) {
                     matchedFlags[expectedFlag.name] = matchedFlags[expectedFlag.name]?.plus(1) ?: 1
                 } else if (expectedOption != null) {
-                    if (argsIt.hasNext()) {
+                    if (arguments.hasNext()) {
                         matchedOption.putIfAbsent(expectedOption.name, mutableListOf())
-                        matchedOption[expectedOption.name]?.add(argsIt.next())
+                        matchedOption[expectedOption.name]?.add(arguments.next())
                     } else {
                         throw OptionValueIsMissingException("asd")
                     }
                 } else {
-                    if (this.expectedPositionals.size == matchedPositional.size) {
-                        throw UnexpectedArgException(arg)
+                    throw UnexpectedArgException(argument)
+                }
+            } else if (argument.startsWith("-")) {
+                val trimmedArg = argument.trimStart('-')
+                for (arg in trimmedArg) {
+                    val expectedFlag = this.expectedFlags.find { it.matches(arg.toString()) }
+                    val expectedOption = this.expectedOptions.find { it.matches(argument.trimStart('-')) }
+                    if (expectedFlag != null) {
+                        matchedFlags[expectedFlag.name] = matchedFlags[expectedFlag.name]?.plus(1) ?: 1
+                    } else if (expectedOption != null) {
+                        if (arguments.hasNext()) {
+                            matchedOption.putIfAbsent(expectedOption.name, mutableListOf())
+                            matchedOption[expectedOption.name]?.add(arguments.next())
+                        } else {
+                            throw OptionValueIsMissingException("asd")
+                        }
+                    } else {
+                        throw UnexpectedArgException(argument)
                     }
                 }
             } else {
                 if (this.expectedPositionals.size == matchedPositional.size) {
-                    throw UnexpectedArgException(arg)
+                    throw UnexpectedArgException(argument)
                 }
                 val argDescriptor = this.expectedPositionals[matchedPositional.size]
-                matchedPositional[argDescriptor.name] = arg
+                matchedPositional[argDescriptor.name] = argument
             }
         }
         for (flag in matchedFlags) {
@@ -82,8 +98,7 @@ class MatchesOf(
     }
 
     private fun descriptorOf(name: String): ExpectedFlag? {
-        return this.expectedFlags.find { it.name == name } ?:
-            this.expectedOptions.find { it.name == name }
+        return this.expectedFlags.find { it.name == name } ?: this.expectedOptions.find { it.name == name }
     }
 }
 
@@ -172,8 +187,7 @@ class Matches(
     }
 
     fun occurrencesOf(name: String): Int {
-        return flagArgs[name] ?:
-            optionArgs[name]?.size ?: 0
+        return flagArgs[name] ?: optionArgs[name]?.size ?: 0
     }
 
     fun valueOf(name: String): String? {
