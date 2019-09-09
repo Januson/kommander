@@ -13,8 +13,26 @@ import org.kommander.ui.positional
 class DoubleDashTest {
 
     @Test
-    fun matchesFollowingArgsAsPositional() {
-        val args = listOf("-V", "--", "-r", "-d")
+    fun shouldMatchArgsAsPositional() {
+        val args = listOf("-V", "--", "file1", "file2")
+        val matches = app("test") {
+            args {
+                flag("verbose") {
+                    short = "V"
+                }
+                positional(name = "source") {}
+                positional(name = "target") {}
+            }
+        }.matches(args)
+
+        assertTrue(matches.isPresent("verbose"))
+        assertTrue(matches.isPresent("source"))
+        assertTrue(matches.isPresent("target"))
+    }
+
+    @Test
+    fun shouldMatchFlagsAsPositional() {
+        val args = listOf("-V", "--", "-t", "--debug")
         val matches = app("test") {
             args {
                 flag("verbose") {
